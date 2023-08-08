@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "${repoName}-${timestamp}"
+  labels:
+    app: "${repoName}"
+    timestamp: "${timestamp}"
+spec:
+  backoffLimit: 0 # デフォルト値は6です。
+  ttlSecondsAfterFinished: 259200 # 停止したジョブを259200秒(3日)後に削除するという意味です。
+  template:
+    metadata:
+      labels:
+        app: "${repoName}"
+    spec:
+      restartPolicy: Never
+
+      initContainers:
+        - image: alpine/git
+          name: git
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "mkdir -p /app && \
+              git clone ${remoteRepositoryUrl} /app && \
+              cd /app && \
+              git submodule update --init --recursive && \
+              git checkout ${commitHash} && \
+              ls"
+
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/root/.ssh/"
+
+            - name: app
+              mountPath: /app # app以下に、git cloneします
+
+      containers:
+        - name: app
+          image: ${imageName}
+          workingDir: /app
+          command: # ここにコマンドを記述します。
+            - echo
+            - "Hello from Amath. Amath, AKARI Mathematicians is a GPU cluster that enforce development of AKARI Lab Team!!"
+          resources:
+            limits:
+              nvidia.com/gpu: 1 # GPUが欲しい人はここに書きます。
+          volumeMounts:
+            - name: app
+              mountPath: /app # app以下に、git cloneします
+            - name: nfs # /var/nfs/data/(下記のvolumes: name:nfs nfs: path に書かれたpath)のディレクトリをコンテナ内の/var/data/(1行下のmountPath)にマウントします。
+              mountPath: "/var/data/"
+            - name: dsh
+              mountPath: /dev/shm # おまじないです。これがないとOOMが起きます。
+
+      volumes:
+        - name: app
+        - name: nfs
+          nfs:
+            server: 192.168.1.252 #2023/04現在のnas local ip
+            path: /var/nfs/data/ #
+        - name: dsh
+          emptyDir:
+            medium: Memory
+        - name: secret-volume
+          secret:
+            secretName: ssh-key-secret
+            defaultMode: 0600

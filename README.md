@@ -1,0 +1,2 @@
+# Amath repository template
+
