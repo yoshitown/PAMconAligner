@@ -32,8 +32,11 @@ def fetch_from_ncbi(email, search_term, output_path, database='nucleotide', retm
 
     # 結果をFASTAファイルに保存します
     SeqIO.write(fasta_records, output_path, "fasta")
-
-    return f"Sequences saved to {output_path}"
+    print(f"Sequences saved to {output_path}")
+    return fasta_records
 
 # # 使用例
-# print(fetch_from_ncbi("your_email@example.com", "extended-spectrum beta-lactamase class A", "/content/drive/MyDrive/creat_grna/ESBL_classA_DNA.fasta"))
+# email = "your_email@example.com"
+# term = "extended-spectrum beta-lactamase class A"
+# path = "/content/drive/MyDrive/creat_grna/ESBL_classA_DNA.fasta"
+# print(fetch_from_ncbi(email, term, path))
