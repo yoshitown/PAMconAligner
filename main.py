@@ -1,16 +1,21 @@
 import argparse
-from src import alignment, consensus, pam_search, common_pam
-from src.fetch_sequences import fetch_ncbi_sequences  # 仮にfetch_ncbi_sequencesという関数名で関数化した場合
-
+from src import alignment, consensus, pam_search
+from src.fetch_sequences import fetch_from_ncbi  # 仮にfetch_ncbi_sequencesという関数名で関数化した場合
+    # if len(sys.argv) > 1:
+    #     # filepath = sys.argv[1]
+    #     else:
+        # print("CSVファイルのパスを指定してください。")
 def main(args):
     email = "your_email@example.com"
     search_term = "extended-spectrum beta-lactamase class A"
-    output_path = "/content/drive/MyDrive/creat_grna/ESBL_classA_DNA.fasta"
+    output_path = r"C:\Users\yoshi\OneDrive\ドキュメント\GitHub\PAMconAligner_iGEM\data\ESBL_classA_DNAs.fasta"
     # 入力FASTAファイルからのデータの読み込み
     sequences = read_fasta(args.input)
+    # NCBIから配列を取得して保存する
+    simillar_seqencens=fetch_from_ncbi(email, search_term, output_path)  
 
     # アライメントの実行
-    aligned_sequences = alignment.align(sequences)
+    aligned_sequences,align_erro = alignment.align(sequences,simillar_seqencens)
 
     # コンセンサス配列の取得
     consensus_sequence = consensus.get_consensus(aligned_sequences)
@@ -18,11 +23,11 @@ def main(args):
     # PAM配列の検索
     pams = pam_search.find_pams(consensus_sequence)
 
-    # 最大公約数のPAMを検索
-    common_pam_sequence = common_pam.find_common(pams)
+    # # 最大公約数のPAMを検索
+    # common_pam_sequence = common_pam.find_common(pams)
 
     # 結果の表示または保存
-    print("Common PAM:", common_pam_sequence)
+    print("Common PAM:")
 
 def read_fasta(filename):
     with open(filename, 'r') as f:
@@ -35,4 +40,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main(args)
-    fetch_ncbi_sequences(email, search_term, output_path)  # NCBIから配列を取得して保存する
+    

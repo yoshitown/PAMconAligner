@@ -1,11 +1,7 @@
 #アライメントされた配列からコンセンサス配列を生成する関数
 from Bio import AlignIO
 from Bio.Align import AlignInfo
-# # スクリプトのあるディレクトリのパスを取得
-# current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# # アライメントファイルの相対パスを指定する
-# alignment_file_path = os.path.join(current_dir, "input_gene.fasta")
 # アライメントファイルを読み込む
 alignment = AlignIO.read(r"G:\マイドライブ\creat_grna\alignment.fasta", "fasta")  
 
@@ -19,11 +15,12 @@ consensus_seq = summary_align.dumb_consensus()
 consensus_seq_str = str(consensus_seq)
 
 # 出力ファイル名
-output_file = "consensus_sequence.txt"
+output_file = "consensus_sequence.fasta"
 
-# テキストファイルにコンセンサス配列を書き込む
+# FASTAファイルにコンセンサス配列を書き込む
 with open(output_file, "w") as f:
-    f.write(consensus_seq_str)
+    f.write(">Consensus_Sequence\n")
+    f.write(consensus_seq_str + "\n")
 
 print(f"Consensus sequence has been written to '{output_file}'.")
 print("Consensus sequence:")
